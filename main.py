@@ -1,12 +1,29 @@
-import cv2 as cv
-img=cv.imread('Two.jpg')
-# cv.imshow('Grayperson',img)
-gray=cv.cvtColor(img,cv.COLOR_BGR2GRAY)
 
-haar_cascade=cv.CascadeClassifier('Haar_Face.xml')
-faces_rect=haar_cascade.detectMultiScale(gray,scaleFactor=2.2,minNeighbors=3)
-print(f'Number Of Faces Are ={len(faces_rect)}')
-for (x,y,w,h) in faces_rect:
-        cv.rectangle(img, (x,y),(x+w,y+h),(0,255,0),thickness=2)
-        cv.imshow('Person',img)
-cv.waitKey(0)
+while True:
+    # this is to apture a frame from the camera
+    ret, frame = cap.read()
+
+    if not ret:
+        break
+
+    # this convert the frame to grayscale
+    gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+
+    # and this detect faces in the frame
+    faces_rect = haar_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5)
+
+    for (x, y, w, h) in faces_rect:
+        # Draw a rectangle around each detected face u can change the color by chnaging rgb code ani thicknes here @AjinkyaD3
+        cv.rectangle(frame, (x, y), (x + w, y + h), (255, 165, 152), thickness=3)
+
+    # and this will display the frame with detected faces 
+    cv.imshow('Face Detection', frame)
+
+    # u can press 'q' to exit the loop and close the window
+    if cv.waitKey(1) & 0xFF == ord('q'):
+        break
+
+# releasing  the camera and close all OpenCV windows
+cap.release()
+cv.destroyAllWindows()
+#@AjinkyaD3
