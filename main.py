@@ -1,33 +1,57 @@
-import cv2 as cv
-Cam=cv.VideoCapture(0)
-while True:
-    # this is to apture a frame from the camera
-    ret, frame = Cam.read()
+import cv2
+import tkinter as tk
+from PIL import Image, ImageTk
+import threading
 
-    if not ret:
-        break
+# Function to capture and update the webcam feed with face detection
+def display_webcam():
+    cap = cv2.VideoCapture(0)  # 0 corresponds to the default webcam
 
-    haar_cascade=cv.CascadeClassifier('Haar_Face.xml')
-    # and this detect faces in the frame
-    faces_rect = haar_cascade.detectMultiScale(frame,scaleFactor=1.1, minNeighbors=5)
+    if not cap.isOpened():
+        return
 
-    for (x, y, w, h) in faces_rect:
-        # Draw a rectangle around each detected face u can change the color by chnaging rgb code ani thicknes here 
-        cv.rectangle(frame,(x, y), (x + w, y + h), (255, 125, 152), thickness=3)
+    while True:
+        ret, frame = cap.read()  # Read a frame from the webcam
 
-    # and this will display the frame with detected faces 
-    cv.imshow('Face Detection--Press q to exit', frame)
+        if not ret:
+            break
 
-    # u can press 'q' to exit the loop and close the window
-    ''' Exit the loop when the 'q' key is pressed
-        # Here if u printing the frame data then use this code to get out of looop
-        # if keyboard.read_event('q'):
-        break'''
-    
-    if cv.waitKey(1) & 0xFF == ord('q'):
-        break
+        # Convert the OpenCV BGR image to RGB
+        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-# releasing  the camera and close all OpenCV windows
-Cam.release()
-cv.destroyAllWindows()
+        # Detect faces in the frame
+        haar_cascade = cv2.CascadeClassifier('Haar_Face.xml')
+        faces_rect = haar_cascade.detectMultiScale(rgb_frame, scaleFactor=1.1, minNeighbors=5)
 
+        # Draw rectangles around detected faces
+        for (x, y, w, h) in faces_rect:
+            cv2.rectangle(rgb_frame, (x, y), (x + w, y + h), (255, 125, 152), thickness=3)
+
+        # Convert the RGB frame to a Pillow Image
+        pil_image = Image.fromarray(rgb_frame)
+
+        # Convert the Pillow Image to a Tkinter PhotoImage
+        img = ImageTk.PhotoImage(image=pil_image)
+
+        # Update the label with the new image
+        label.config(image=img)
+        label.image = img
+
+        
+    cap.release()
+    cv2.destroyAllWindows()
+
+# Create a Tkinter window
+root = tk.Tk()
+root.title("Face Detection")
+
+# Create a label to display the webcam feed
+label = tk.Label(root)
+label.pack()
+
+# Create a thread to run the webcam feed with face detection
+webcam_thread = threading.Thread(target=display_webcam)
+webcam_thread.daemon = True  # Allow the thread to exit when the program exits
+webcam_thread.start()
+
+root.mainloop()
