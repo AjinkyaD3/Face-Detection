@@ -21,7 +21,7 @@ def display_webcam():
 
         # Detect faces in the frame
         haar_cascade = cv2.CascadeClassifier('Haar_Face.xml')
-        faces_rect = haar_cascade.detectMultiScale(rgb_frame, scaleFactor=1.1, minNeighbors=5)
+        faces_rect = haar_cascade.detectMultiScale(rgb_frame, scaleFactor=1.1, minNeighbors=4)
 
         # Draw rectangles around detected faces
         for (x, y, w, h) in faces_rect:
